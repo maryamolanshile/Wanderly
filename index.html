@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wanderly_weather_search</title>  
+
+    <style>
+       body{
+         font-family: Arial;
+         display: flex;
+         flex-direction: column;
+         align-items: center;
+       }
+       h1{
+         font-size: 48px;
+       }
+       button{
+         padding: 8px 16px;
+         width: 100px;
+         font-size: 16px;
+       }   
+       input{
+         padding: 8px 16px; 
+         width: 320px; 
+       }
+       form{
+         display: flex;
+         gap: 8px;
+       }      
+       #result{
+        border: 1px solid black;
+       }
+    </style>
+  </head>
+  <body>
+    <h1>Wanderly</h1>
+    <form action="search">
+        <input type="text" placeholder="Enter a city name" id="search_input" required/>
+        <button id="search_button">Search</button>
+    </form>
+    <p id="result"></p>
+
+    <script>    
+    </script>
+  </body>
+</html>  
