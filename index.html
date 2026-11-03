@@ -28,20 +28,114 @@
          display: flex;
          gap: 8px;
        }      
-       #result{
-        border: 1px solid black;
-       }
+       
     </style>
   </head>
   <body>
     <h1>Wanderly</h1>
     <form action="search">
         <input type="text" placeholder="Enter a city name" id="search_input" required/>
-        <button id="search_button">Search</button>
+        <button type="button" id="search_button">Search</button>
     </form>
-    <p id="result"></p>
+    <p id="loading"></p>
+    <pre id="result"></pre>
 
-    <script>    
+    <script> 
+      const search = document.querySelector("#search_button");
+      const loading = document.querySelector("#loading");
+      const result = document.querySelector("#result"); 
+      search.addEventListener("click",
+        async function getWeather (event){
+          event.preventDefault();
+          loading.textContent = "Loading...";
+          search.disabled = 'true';
+          const userInput = document.querySelector("#search_input");
+          const city = userInput.value;
+          console.log(city);
+          try {
+          const url = `https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1`;
+          const res = await fetch(url);
+           if(!res.ok){
+            throw new Error (`HTTP error! Status: ${res.status}`);
+           };
+          const data = await res.json();
+          console.log(data.results);
+          if(!data.results || data.results.length === 0){
+            throw new Error('City not found. Please try again')
+          };
+          const{latitude: lat, longitude: long} = data.results[0];
+          console.log(lat, long);
+          const URL = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${long}&current_weather=true`;
+          const response = await fetch(URL);
+           if(!response.ok){
+            throw new Error (`HTTP error! Status: ${response.status}`);
+           };
+          const info = await response.json();
+          console.table(info.current_weather);
+          loading.textContent = '';
+          const {country: count, temperature: temp, windspeed: windSpeed, weathercode: code} = info.current_weather
+          const weatherCodes = {
+            // Clear and cloudy conditions
+            0: "Clear sky",
+            1: "Mainly clear",
+            2: "Partly cloudy",
+            3: "Overcast",
+            // Fog
+            45: "Fog",
+            48: "Depositing rime fog",
+            // Drizzle
+            51: "Light drizzle",
+            53: "Moderate drizzle",
+            55: "Dense drizzle",
+            56: "Light freezing drizzle",
+            57: "Dense freezing drizzle",
+            // Rain
+            61: "Slight rain",
+            63: "Moderate rain",
+            65: "Heavy rain",
+            // Freezing rain
+            66: "Light freezing rain",
+            67: "Heavy freezing rain",
+            // Snowfall
+            71: "Slight snowfall",
+            73: "Moderate snowfall",
+            75: "Heavy snowfall",
+            77: "Snow grains",
+            // Rain showers
+            80: "Slight rain showers",
+            81: "Moderate rain showers",
+            82: "Violent rain showers",
+            // Snow showers
+            85: "Slight snow showers",
+            86: "Heavy snow showers",
+            // Thunderstorms
+            95: "Thunderstorm",
+            96: "Thunderstorm with slight hail",
+            97: "Heavy thunderstorm",
+            99: "Thunderstorm with heavy hail"    
+          };
+          const condition = weatherCodes[code] || "Unknown weather condition";
+          result.textContent = `
+Weather Info:          
+    ${city}
+    Temperature: ${temp}°C
+    Wind Speed: ${windSpeed} km/h
+    There is a ${condition} weather today
+               `;
+          result.style.border = '1px solid black';
+          result.style.padding = '2px 64px 6px 4px';
+          result.style.fontFamily = 'Arial';
+          }
+          catch(error){
+            loading.textContent = `Error: ${error.message}`;
+            loading.style.color = 'red';
+            loading.style.padding = '16px';
+            loading.style.border = '1px solid black';
+            loading.style.borderRadius = '3px'; 
+            loading.style.backgroundColor = 'black'
+          }
+        }
+      )
     </script>
   </body>
 </html>  
